@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "googleapis": "39",
+    "node-telegram-bot-api": "^0.51.0"
+  }
+}

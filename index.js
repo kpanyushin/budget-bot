@@ -1,8 +1,8 @@
 const dotenv = require('dotenv');
 const TelegramBot = require('node-telegram-bot-api');
 
-const { categories, months } = require('./constants');
-const { addExpense, addIncome, getBalance } = require('./sheets');
+const { categories, months } = require('./app/constants');
+const { addExpense, addIncome, getBalance } = require('./app/sheets');
 
 dotenv.config();
 
@@ -11,6 +11,7 @@ const expenseList = [];
 let currentOperation;
 
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
+bot.setWebHook('https://panyushin-budget.herokuapp.com/');
 
 function handleError(err) {
   console.error(err);

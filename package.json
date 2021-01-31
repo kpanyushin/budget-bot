@@ -2,7 +2,7 @@
   "name": "budget-bot",
   "version": "1.0.0",
   "description": "Telegram bot for keeping budget",
-  "main": "/app/index.js",
+  "main": "index.js",
   "dependencies": {
     "dotenv": "^8.2.0",
     "googleapis": "39",

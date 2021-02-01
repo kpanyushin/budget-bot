@@ -10,7 +10,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "node ./app/index.js"
+    "start": "node ."
   },
   "repository": {
     "type": "git",

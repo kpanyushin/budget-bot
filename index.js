@@ -10,7 +10,7 @@ const incomeList = [];
 const expenseList = [];
 let currentOperation;
 
-const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
+const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: { interval: 1000 } });
 bot.setWebHook('https://panyushin-budget.herokuapp.com/');
 
 function handleError(err) {

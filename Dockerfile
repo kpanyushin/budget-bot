@@ -3,4 +3,4 @@ WORKDIR /
 COPY ["package.json", "package-lock.json*", "./"]
 RUN npm install
 COPY . .
-CMD ["node", "."]
+CMD ["cd", "app", "node", "handlers.js"]

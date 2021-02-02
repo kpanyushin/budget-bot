@@ -8,9 +8,12 @@
     "googleapis": "39",
     "node-telegram-bot-api": "^0.51.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^7.19.0"
+  },
   "scripts": {
-    "start": "node ."
+    "lint": "eslint",
+    "start": "node ./app/handlers.js"
   },
   "repository": {
     "type": "git",

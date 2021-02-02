@@ -25,3 +25,5 @@ module.exports.months = [
   'Ноябрь',
   'Декабрь'
 ];
+
+module.exports.incomeSheetName = 'Доход';

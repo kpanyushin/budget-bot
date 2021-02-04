@@ -2,7 +2,14 @@ const dotenv = require('dotenv');
 
 const { bot } = require('../index');
 const { categories, months } = require('./constants');
-const { addExpense, addIncome, getBalance, addSheet, authorize, createNewToken } = require('./sheets');
+const {
+  addExpense,
+  addIncome,
+  getBalance,
+  addSheet,
+  authorize,
+  createNewToken
+} = require('./sheets');
 
 dotenv.config();
 

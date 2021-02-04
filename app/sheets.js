@@ -14,7 +14,7 @@ const { bot } = require('../index');
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
 
-module.exports.authorize = function(msg) {
+module.exports.authorize = function (msg) {
   fs.readFile('credentials.json', (err, content) => {
     if (err) return console.log('Error loading client secret file:', err);
 
@@ -26,33 +26,33 @@ module.exports.authorize = function(msg) {
       client_secret,
       redirect_uris[0]
     );
-  
+
     fs.readFile(TOKEN_PATH, (err, token) => {
       if (err) return getNewToken(msg, authClient);
       authClient.setCredentials(JSON.parse(token));
       sheets = google.sheets({
         version: 'v4',
-        auth: authClient,
+        auth: authClient
       });
     });
   });
-}
+};
 
 function getNewToken(msg, oAuth2Client) {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES
   });
-  bot.sendMessage(msg.chat.id, 'Authorize this app by visiting this url: ' + authUrl);
+  bot.sendMessage(
+    msg.chat.id,
+    'Authorize this app by visiting this url: ' + authUrl
+  );
 }
 
-module.exports.createNewToken = function(code) {
+module.exports.createNewToken = function (code) {
   authClient.getToken(code, (err, token) => {
     if (err)
-      return console.error(
-        'Error while trying to retrieve access token',
-        err
-      );
+      return console.error('Error while trying to retrieve access token', err);
     authClient.setCredentials(token);
     // Store the token to disk for later program executions
     fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
@@ -60,6 +60,30 @@ module.exports.createNewToken = function(code) {
       console.log('Token stored to', TOKEN_PATH);
     });
   });
+};
+
+function fulfillSheet(range, onErr, onSuccess) {
+ sheets.spreadsheets.values.append(
+   {
+     range,
+     spreadsheetId,
+     valueInputOption: 'USER_ENTERED',
+     insertDataOption: 'OVERWRITE',
+     requestBody: {
+       values: [
+        ['Дата операции', 'Сумма',	'Категория', 'Описание', 'Остаток']
+       ]
+     }
+   },
+   (err, res) => {
+    if (err) {
+      onErr(err);
+      return;
+    }
+
+    onSuccess(res);
+   }
+ );
 }
 
 module.exports.addExpense = function (data, onErr, onSuccess) {
@@ -95,7 +119,6 @@ module.exports.addIncome = function (data, onErr, onSuccess) {
       requestBody: {
         values: data
       },
-      // auth: process.env.GOOGLE_API_KEY
     },
     (err, res) => {
       if (err) {
@@ -124,11 +147,27 @@ module.exports.getBalance = function (onErr, onSuccess) {
 };
 
 module.exports.addSheet = function (onErr, onSuccess) {
-  sheets.spreadsheets
-    .batchUpdate({
-      spreadsheetId,
-      // auth: process.env.GOOGLE_API_KEY
-    })
-    .then((res) => void console.log(res))
-    .catch((err) => console.log(err));
+  const newMonth = months[5];
+  const request = {
+    spreadsheetId,
+    resource: {
+      requests: [
+        {
+          addSheet: {
+            properties: {
+              title: newMonth,
+            }
+          }
+        }
+      ]
+    }
+  };
+  sheets.spreadsheets.batchUpdate(request, (err) => {
+    if (err) {
+      onErr(err);
+      return;
+    }
+
+    fulfillSheet(newMonth, onErr, onSuccess);
+  });
 };

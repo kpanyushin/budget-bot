@@ -6,7 +6,7 @@ const { months, incomeSheetName } = require('./constants');
 
 const spreadsheetId = process.env.SPREADSHEET_ID;
 let sheets;
-let oAuth2Client;
+let authClient;
 const currentMonth = months[new Date().getMonth()];
 
 const { bot } = require('../index');
@@ -21,18 +21,18 @@ module.exports.authorize = function(msg) {
     const { redirect_uris } = JSON.parse(content).installed;
     const client_id = process.env.CLIENT_ID;
     const client_secret = process.env.CLIENT_SECRET;
-    oAuth2Client = new google.auth.OAuth2(
+    authClient = new google.auth.OAuth2(
       client_id,
       client_secret,
       redirect_uris[0]
     );
   
     fs.readFile(TOKEN_PATH, (err, token) => {
-      if (err) return getNewToken(msg);
-      oAuth2Client.setCredentials(JSON.parse(token));
+      if (err) return getNewToken(msg, authClient);
+      authClient.setCredentials(JSON.parse(token));
       sheets = google.sheets({
         version: 'v4',
-        auth: oAuth2Client,
+        auth: authClient,
       });
     });
   });
@@ -47,13 +47,13 @@ function getNewToken(msg, oAuth2Client) {
 }
 
 module.exports.createNewToken = function(code) {
-  oAuth2Client.getToken(code, (err, token) => {
+  authClient.getToken(code, (err, token) => {
     if (err)
       return console.error(
         'Error while trying to retrieve access token',
         err
       );
-    oAuth2Client.setCredentials(token);
+    authClient.setCredentials(token);
     // Store the token to disk for later program executions
     fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
       if (err) return console.error(err);

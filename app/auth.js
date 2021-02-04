@@ -72,9 +72,3 @@ bot.onText(/\/start/, (msg) => {
 
   bot.sendMessage(msg.chat.id, 'Что нужно сделать?', opts);
 });
-
-console.log(oAuth2Client);
-
-module.exports.authClient =  {
-  auth: oAuth2Client,
-};

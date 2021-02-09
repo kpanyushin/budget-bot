@@ -10,6 +10,7 @@ const {
   authorize,
   createNewToken
 } = require('./sheets');
+const { remind } = require('./reminder');
 
 dotenv.config();
 
@@ -113,6 +114,7 @@ bot.onText(/Добавить новый лист/, () => {
 });
 
 bot.on('message', (msg) => {
+  remind(msg);
   authorize(msg);
 });
 

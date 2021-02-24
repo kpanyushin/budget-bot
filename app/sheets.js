@@ -147,7 +147,6 @@ module.exports.getBalance = function (onErr, onSuccess) {
 };
 
 module.exports.addSheet = function (onErr, onSuccess) {
-  const newMonth = months[5];
   const request = {
     spreadsheetId,
     resource: {
@@ -155,7 +154,7 @@ module.exports.addSheet = function (onErr, onSuccess) {
         {
           addSheet: {
             properties: {
-              title: newMonth,
+              title: currentMonth,
             }
           }
         }
@@ -168,6 +167,6 @@ module.exports.addSheet = function (onErr, onSuccess) {
       return;
     }
 
-    fulfillSheet(newMonth, onErr, onSuccess);
+    fulfillSheet(currentMonth, onErr, onSuccess);
   });
 };

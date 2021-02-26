@@ -16,6 +16,9 @@ dotenv.config();
 
 const incomeList = [];
 const expenseList = [];
+/**
+ * @type {'income'|'expense'}
+ */
 let currentOperation;
 
 function handleError(err) {
@@ -71,7 +74,7 @@ bot.onText(/(.+)-(.+)-(.+)-(.+)/, (msg, match) => {
         [
           {
             text: 'Добавить еще',
-            callback_data: 'Add'
+            callback_data: currentOperation,
           }
         ]
       ]
@@ -122,9 +125,19 @@ bot.on('callback_query', (cbQuery) => {
   const action = cbQuery.data;
   const msg = cbQuery.message;
 
-  if (action === 'Add') {
-    const addMsg =
-      currentOperation === 'income' ? 'Добавить доход' : 'Добавить расход';
-    bot.sendMessage(msg.chat.id, addMsg);
+  if (action === 'income') {
+    bot.sendMessage(
+      msg.chat.id,
+      'Укажи доход в формате Месяц-Сумма-Категория-Комментарий. Пример - Февраль-2000-Постоянный-ЗП'
+    );
+  }
+
+  if (action === 'expense') {
+    bot.sendMessage(
+      msg.chat.id,
+      `Укажи расход в формате Дата-Сумма-Категория-Комментарий. Пример - 01.01.1970-1000-Продукты-Пятерочка
+      Доступные категории - ${categories.join(', ')}
+      `
+    );
   }
 });

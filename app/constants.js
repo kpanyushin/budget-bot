@@ -1,4 +1,4 @@
-module.exports.categories = [
+const categories = [
   'Продукты',
   'Пиво',
   'Вино',
@@ -14,10 +14,11 @@ module.exports.categories = [
   'Одежда',
   'Спорт',
   'Рестораны',
+  'Такси',
   'Другое'
 ];
 
-module.exports.months = [
+const months = [
   'Январь',
   'Февраль',
   'Март',
@@ -32,4 +33,30 @@ module.exports.months = [
   'Декабрь'
 ];
 
-module.exports.incomeSheetName = 'Доход';
+const incomeSheetName = 'Доход';
+const defaultKeyboard = [
+  ['Добавить доход'],
+  ['Добавить расход'],
+  ['Остаток'],
+  ['Отложить'],
+  ['Добавить новый лист']
+];
+const addIncomeMsg = 'Укажи доход в формате Месяц-Сумма-Категория-Комментарий. Пример - Февраль-2000-Постоянный-ЗП';
+const addExpenseMsg = 
+`Укажи расход в формате Сумма-Категория-Комментарий.
+
+Пример - 1000-1-Пятерочка
+
+Доступные категории:
+
+${categories.map((category, index) => `${index}) ${category}`).join('\n')}
+`;
+
+module.exports = {
+  incomeSheetName,
+  defaultKeyboard,
+  addExpenseMsg,
+  addIncomeMsg,
+  categories,
+  months,
+};

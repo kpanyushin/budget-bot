@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
 
 const { bot } = require('../index');
-const { categories, months } = require('./constants');
+const { months, categories, addIncomeMsg, addExpenseMsg, defaultKeyboard } = require('./constants');
 const {
   addExpense,
   addIncome,
@@ -28,14 +28,7 @@ function handleError(err) {
 bot.onText(/\/start/, (msg) => {
   const opts = {
     reply_to_message_id: msg.message_id,
-    reply_markup: JSON.stringify({
-      keyboard: [
-        ['Добавить доход'],
-        ['Добавить расход'],
-        ['Остаток'],
-        ['Добавить новый лист']
-      ]
-    })
+    reply_markup: JSON.stringify({ keyboard: defaultKeyboard })
   };
 
   bot.sendMessage(msg.chat.id, 'Что нужно сделать?', opts);
@@ -47,27 +40,26 @@ bot.onText(/Токен - (.+)/, (_, match) => {
 
 bot.onText(/Добавить доход/, (msg) => {
   currentOperation = 'income';
-  bot.sendMessage(
-    msg.chat.id,
-    'Укажи доход в формате Месяц-Сумма-Категория-Комментарий. Пример - Февраль-2000-Постоянный-ЗП'
-  );
+  bot.sendMessage(msg.chat.id, addIncomeMsg);
 });
 
 bot.onText(/Добавить расход/, (msg) => {
   currentOperation = 'expense';
 
-  bot.sendMessage(
-    msg.chat.id,
-    `Укажи расход в формате Дата-Сумма-Категория-Комментарий. Пример - 01.01.1970-1000-Продукты-Пятерочка
-    Доступные категории - ${categories.join(', ')}
-    `
-  );
+  bot.sendMessage(msg.chat.id, addExpenseMsg);
 });
 
-bot.onText(/(.+)-(.+)-(.+)-(.+)/, (msg, match) => {
+bot.onText(/(.+)-(.+)-(.+)/, (msg, match) => {
   const operation = [];
   let operationName = '';
-  msg.text.split('-').forEach((item) => operation.push(item));
+  operation.push(new Date().toLocaleDateString().replace(/\//, '.'));
+  msg.text.split('-').forEach((item, index) => {
+    if (index === 1) {
+      operation.push(categories[item]);
+    } else {
+      operation.push(item);
+    }
+  });
   const opts = {
     reply_markup: {
       inline_keyboard: [
@@ -109,9 +101,9 @@ bot.onText(/Остаток/, (msg) => {
   getBalance(handleError, handleSuccess);
 });
 
-bot.onText(/Добавить новый лист/, () => {
-  const handleSuccess = (res) => {
-    console.log(res);
+bot.onText(/Добавить новый лист/, (msg) => {
+  const handleSuccess = () => {
+    bot.sendMessage(msg.chat.id, 'Новый лист добавлен');
   };
   addSheet(handleError, handleSuccess);
 });
@@ -126,18 +118,10 @@ bot.on('callback_query', (cbQuery) => {
   const msg = cbQuery.message;
 
   if (action === 'income') {
-    bot.sendMessage(
-      msg.chat.id,
-      'Укажи доход в формате Месяц-Сумма-Категория-Комментарий. Пример - Февраль-2000-Постоянный-ЗП'
-    );
+    bot.sendMessage(msg.chat.id, addIncomeMsg);
   }
 
   if (action === 'expense') {
-    bot.sendMessage(
-      msg.chat.id,
-      `Укажи расход в формате Дата-Сумма-Категория-Комментарий. Пример - 01.01.1970-1000-Продукты-Пятерочка
-      Доступные категории - ${categories.join(', ')}
-      `
-    );
+    bot.sendMessage(msg.chat.id, addExpenseMsg);
   }
 });

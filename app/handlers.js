@@ -1,18 +1,20 @@
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
 
-const { bot } = require('../index');
-const { categories, months } = require('./constants');
-const {
+dotenv.config();
+
+import { bot } from './index.js';
+import * as constants from './constants';
+console.log(constants);
+// import { addIncomeMsg, addExpenseMsg, months, defaultKeyboard as keyboard } from './constants';
+import {
   addExpense,
   addIncome,
   getBalance,
   addSheet,
   authorize,
   createNewToken
-} = require('./sheets');
-const { remind } = require('./reminder');
-
-dotenv.config();
+} from './sheets';
+import remind from './reminder';
 
 const incomeList = [];
 const expenseList = [];
@@ -28,14 +30,7 @@ function handleError(err) {
 bot.onText(/\/start/, (msg) => {
   const opts = {
     reply_to_message_id: msg.message_id,
-    reply_markup: JSON.stringify({
-      keyboard: [
-        ['Добавить доход'],
-        ['Добавить расход'],
-        ['Остаток'],
-        ['Добавить новый лист']
-      ]
-    })
+    reply_markup: JSON.stringify({ keyboard }),
   };
 
   bot.sendMessage(msg.chat.id, 'Что нужно сделать?', opts);
@@ -47,21 +42,13 @@ bot.onText(/Токен - (.+)/, (_, match) => {
 
 bot.onText(/Добавить доход/, (msg) => {
   currentOperation = 'income';
-  bot.sendMessage(
-    msg.chat.id,
-    'Укажи доход в формате Месяц-Сумма-Категория-Комментарий. Пример - Февраль-2000-Постоянный-ЗП'
-  );
+  bot.sendMessage(msg.chat.id, addIncomeMsg);
 });
 
 bot.onText(/Добавить расход/, (msg) => {
   currentOperation = 'expense';
 
-  bot.sendMessage(
-    msg.chat.id,
-    `Укажи расход в формате Дата-Сумма-Категория-Комментарий. Пример - 01.01.1970-1000-Продукты-Пятерочка
-    Доступные категории - ${categories.join(', ')}
-    `
-  );
+  bot.sendMessage(msg.chat.id, addExpenseMsg);
 });
 
 bot.onText(/(.+)-(.+)-(.+)-(.+)/, (msg, match) => {
@@ -126,18 +113,10 @@ bot.on('callback_query', (cbQuery) => {
   const msg = cbQuery.message;
 
   if (action === 'income') {
-    bot.sendMessage(
-      msg.chat.id,
-      'Укажи доход в формате Месяц-Сумма-Категория-Комментарий. Пример - Февраль-2000-Постоянный-ЗП'
-    );
+    bot.sendMessage(msg.chat.id, addIncomeMsg);
   }
 
   if (action === 'expense') {
-    bot.sendMessage(
-      msg.chat.id,
-      `Укажи расход в формате Дата-Сумма-Категория-Комментарий. Пример - 01.01.1970-1000-Продукты-Пятерочка
-      Доступные категории - ${categories.join(', ')}
-      `
-    );
+    bot.sendMessage(msg.chat.id, addExpenseMsg);
   }
 });

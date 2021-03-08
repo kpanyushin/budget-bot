@@ -1,20 +1,22 @@
-const fs = require('fs');
-require('dotenv').config();
-const { google } = require('googleapis');
+import fs from 'fs';
+import dotenv from 'dotenv';
 
-const { months, incomeSheetName } = require('./constants');
+dotenv.config();
+
+import { google } from 'googleapis';
+
+import { months, incomeSheetName } from './constants';
+import { bot } from './index';
 
 const spreadsheetId = process.env.SPREADSHEET_ID;
 let sheets;
 let authClient;
 const currentMonth = months[new Date().getMonth()];
 
-const { bot } = require('../index');
-
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const TOKEN_PATH = 'token.json';
 
-module.exports.authorize = function (msg) {
+export const authorize = function (msg) {
   fs.readFile('credentials.json', (err, content) => {
     if (err) return console.log('Error loading client secret file:', err);
 
@@ -49,7 +51,7 @@ function getNewToken(msg, oAuth2Client) {
   );
 }
 
-module.exports.createNewToken = function (code) {
+export const createNewToken = function (code) {
   authClient.getToken(code, (err, token) => {
     if (err)
       return console.error('Error while trying to retrieve access token', err);
@@ -86,7 +88,7 @@ function fulfillSheet(range, onErr, onSuccess) {
  );
 }
 
-module.exports.addExpense = function (data, onErr, onSuccess) {
+export const addExpense = function (data, onErr, onSuccess) {
   if (!data || !data.length) return;
   sheets.spreadsheets.values.append(
     {
@@ -108,7 +110,7 @@ module.exports.addExpense = function (data, onErr, onSuccess) {
   );
 };
 
-module.exports.addIncome = function (data, onErr, onSuccess) {
+export const addIncome = function (data, onErr, onSuccess) {
   if (!data || !data.length) return;
   sheets.spreadsheets.values.append(
     {
@@ -130,7 +132,7 @@ module.exports.addIncome = function (data, onErr, onSuccess) {
   );
 };
 
-module.exports.getBalance = function (onErr, onSuccess) {
+export const getBalance = function (onErr, onSuccess) {
   sheets.spreadsheets.values.get(
     {
       spreadsheetId,
@@ -146,7 +148,7 @@ module.exports.getBalance = function (onErr, onSuccess) {
   );
 };
 
-module.exports.addSheet = function (onErr, onSuccess) {
+export const addSheet = function (onErr, onSuccess) {
   const request = {
     spreadsheetId,
     resource: {

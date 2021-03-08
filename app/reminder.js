@@ -1,8 +1,8 @@
-const { bot } = require('../index');
+const { bot } = require('./index');
 
 let reminder;
 
-module.exports.remind = function(msg) {
+export const remind = function(msg) {
   if (!reminder) {
     reminder = setInterval(() => {
       bot.sendMessage(msg.chat.id, 'Не забудь добавить расходы за сегодня');

@@ -52,7 +52,7 @@ bot.onText(/Добавить расход/, (msg) => {
 bot.onText(/(.+)-(.+)-(.+)/, (msg, match) => {
   const operation = [];
   let operationName = '';
-  operation.push(new Date().toLocaleDateString().replace(/\//, '.'));
+  operation.push(new Date().toLocaleDateString());
   msg.text.split('-').forEach((item, index) => {
     if (index === 1) {
       operation.push(categories[item]);

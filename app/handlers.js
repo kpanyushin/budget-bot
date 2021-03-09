@@ -3,12 +3,13 @@ const dotenv = require('dotenv');
 const { bot } = require('../index');
 const { months, categories, addIncomeMsg, addExpenseMsg, defaultKeyboard } = require('./constants');
 const {
+  createNewToken,
   addExpense,
-  addIncome,
+  addSavings,
   getBalance,
-  addSheet,
   authorize,
-  createNewToken
+  addIncome,
+  addSheet,
 } = require('./sheets');
 const { remind } = require('./reminder');
 
@@ -49,17 +50,9 @@ bot.onText(/Добавить расход/, (msg) => {
   bot.sendMessage(msg.chat.id, addExpenseMsg);
 });
 
-bot.onText(/(.+)-(.+)-(.+)/, (msg, match) => {
+bot.onText(/(.+)-(.+)-(.+)/, (msg) => {
   const operation = [];
   let operationName = '';
-  operation.push(new Date().toLocaleDateString());
-  msg.text.split('-').forEach((item, index) => {
-    if (index === 1) {
-      operation.push(categories[item]);
-    } else {
-      operation.push(item);
-    }
-  });
   const opts = {
     reply_markup: {
       inline_keyboard: [
@@ -76,18 +69,23 @@ bot.onText(/(.+)-(.+)-(.+)/, (msg, match) => {
     bot.sendMessage(msg.chat.id, `${operationName} добавлен`, opts);
   };
   if (currentOperation === 'income') {
-    if (!months.includes(match[1])) {
-      bot.sendMessage(
-        msg.chat.id,
-        'Введи правильное название месяца в формате Январь'
-      );
-      return;
-    }
+    operation.push(months[new Date().getMonth()]);
+    msg.text.split('-').forEach((item) => {
+      operation.push(item);
+    });
     incomeList.push(operation);
     operationName = 'Доход';
     addIncome([operation], handleError, handleSuccess);
   }
   if (currentOperation === 'expense') {
+    operation.push(new Date().toLocaleDateString());
+    msg.text.split('-').forEach((item, index) => {
+      if (index === 1) {
+        operation.push(categories[item]);
+      } else {
+        operation.push(item);
+      }
+    });
     expenseList.push(operation);
     operationName = 'Расход';
     addExpense([operation], handleError, handleSuccess);
@@ -108,9 +106,21 @@ bot.onText(/Добавить новый лист/, (msg) => {
   addSheet(handleError, handleSuccess);
 });
 
+bot.onText(/Отложить/, (msg) => {
+  bot.sendMessage(msg.chat.id, 'Укажи сумму, которую нужно отложить');
+});
+
+bot.onText(/\/save (.+)/, (msg, match) => {
+  const saveAmount = match[1];
+  const handleSuccess = () => {
+    bot.sendMessage(msg.chat.id, `Отложено ${saveAmount} крон`);
+  };
+  addSavings([[saveAmount]], handleError, handleSuccess);
+});
+
 bot.on('message', (msg) => {
-  remind(msg);
   authorize(msg);
+  remind(msg);
 });
 
 bot.on('callback_query', (cbQuery) => {

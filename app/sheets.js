@@ -86,10 +86,10 @@ function fulfillSheet(range, onErr, onSuccess) {
  );
 }
 
-module.exports.addExpense = function (data, onErr, onSuccess) {
+module.exports.addExpense = async function (data, onErr, onSuccess) {
   if (!data || !data.length) return;
-  sheets.spreadsheets.values.append(
-    {
+  try {
+    const res = await sheets.spreadsheets.values.append({
       spreadsheetId,
       range: currentMonth,
       valueInputOption: 'USER_ENTERED',
@@ -97,21 +97,17 @@ module.exports.addExpense = function (data, onErr, onSuccess) {
       requestBody: {
         values: data
       }
-    },
-    (err, res) => {
-      if (err) {
-        onErr(err);
-        return;
-      }
-      onSuccess(res);
-    }
-  );
+    });
+    onSuccess(res);
+  } catch (error) {
+    onErr(error);
+  }
 };
 
-module.exports.addIncome = function (data, onErr, onSuccess) {
+module.exports.addIncome = async function (data, onErr, onSuccess) {
   if (!data || !data.length) return;
-  sheets.spreadsheets.values.append(
-    {
+  try {
+    const res = sheets.spreadsheets.values.append({
       spreadsheetId,
       range: `${incomeSheetName}!A:D`,
       valueInputOption: 'USER_ENTERED',
@@ -119,34 +115,26 @@ module.exports.addIncome = function (data, onErr, onSuccess) {
       requestBody: {
         values: data
       },
-    },
-    (err, res) => {
-      if (err) {
-        onErr(err);
-        return;
-      }
-      onSuccess(res);
-    }
-  );
+    });
+    onSuccess(res);
+  } catch (error) {
+    onErr(error);
+  }
 };
 
-module.exports.getBalance = function (onErr, onSuccess) {
-  sheets.spreadsheets.values.get(
-    {
+module.exports.getBalance = async function(onErr, onSuccess) {
+  try {
+    const res = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: `${currentMonth}!E2:E2`
-    },
-    (err, res) => {
-      if (err) {
-        onErr(err);
-        return;
-      }
-      onSuccess(res.data.values[0][0]);
-    }
-  );
+      range: `${currentMonth}!E2:E2`,
+    });
+    onSuccess(res.data.values[0][0]);
+  } catch(error) {
+    onErr(error);
+  }
 };
 
-module.exports.addSheet = function (onErr, onSuccess) {
+module.exports.addSheet = function(onErr, onSuccess) {
   const request = {
     spreadsheetId,
     resource: {
@@ -170,3 +158,22 @@ module.exports.addSheet = function (onErr, onSuccess) {
     fulfillSheet(currentMonth, onErr, onSuccess);
   });
 };
+
+module.exports.addSavings = async function(data, onErr, onSuccess) {
+  if (!data || !data.length) return;
+  try {
+    const result = await sheets.spreadsheets.values.update(
+      {
+        spreadsheetId,
+        range: `${currentMonth}!F2:F2`,
+        valueInputOption: 'USER_ENTERED',
+        requestBody: {
+          values: data
+        }
+      }
+    );
+    onSuccess(result);
+  } catch (error) {
+    onErr(error);
+  }
+}
